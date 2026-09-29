@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#ffd6e0">
+  <title>ちいかわタップ</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #fff7fa;
+      font-family: "Hiragino Maru Gothic ProN", "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #hint {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #c9a3b0;
+      font-size: 18px;
+      pointer-events: none;
+      transition: opacity .4s;
+    }
+    .pop {
+      position: fixed;
+      transform: translate(-50%, -50%);
+      font-size: clamp(32px, 12vw, 72px);
+      font-weight: 800;
+      white-space: nowrap;
+      pointer-events: none;
+      text-shadow: 0 3px 0 #fff, 0 0 12px rgba(255,255,255,.9);
+      animation: pop 1.8s ease-out forwards;
+    }
+    .pop img { width: clamp(120px, 40vw, 240px); height: auto; display: block; }
+    @keyframes pop {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+      15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+      25%  { transform: translate(-50%, -50%) scale(1); }
+      70%  { opacity: 1; transform: translate(-50%, -60%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -90%) scale(.9); }
+    }
+  </style>
+</head>
+<body>
+  <div id="hint">画面をタップしてね</div>
+  <script>
+    const COLORS = ['#ff8fab', '#7ec8e3', '#f9c74f', '#90be6d', '#c77dff', '#ff9f68'];
+    const DURATION = 1800; // 表示時間(ms) — CSS の animation と合わせる
+
+    // icons/chiikawa.png を置くと文字の代わりに画像を表示
+    let image = null;
+    const probe = new Image();
+    probe.onload = () => { image = probe.src; };
+    probe.src = 'icons/chiikawa.png';
+
+    const hint = document.getElementById('hint');
+
+    document.addEventListener('pointerdown', (e) => {
+      hint.style.opacity = 0;
+      const el = document.createElement('div');
+      el.className = 'pop';
+      el.style.left = e.clientX + 'px';
+      el.style.top = e.clientY + 'px';
+      if (image) {
+        const img = document.createElement('img');
+        img.src = image;
+        img.alt = 'ちいかわ';
+        el.appendChild(img);
+      } else {
+        el.textContent = 'ちいかわ';
+        el.style.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      }
+      document.body.appendChild(el);
+      if (navigator.vibrate) navigator.vibrate(15);
+      setTimeout(() => el.remove(), DURATION);
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
